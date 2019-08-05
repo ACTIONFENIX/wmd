@@ -2,6 +2,7 @@ TEMPLATE = app
 CONFIG += console c++17
 CONFIG -= app_bundle
 CONFIG -= qt
+CONFIG += debug
 
 SOURCES += \
         downloader.cpp \
@@ -9,7 +10,7 @@ SOURCES += \
         readmanga.cpp \
         sitebase.cpp
 
-QMAKE_CXXFLAGS += -Wall -Wextra -Werror
+QMAKE_CXXFLAGS += -Wall -Wextra
 
 LIBS += -lcurl
 

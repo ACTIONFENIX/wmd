@@ -27,7 +27,7 @@ private:
 
     static constexpr std::array<table_entry, 1> table =
     {
-        std::make_pair("readmanga", &Downloader::create_readmanga)
+        {std::make_pair("readmanga", &Downloader::create_readmanga)}
     };
 
 private:

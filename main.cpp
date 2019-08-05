@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
         Downloader d;
 
         SiteBase *site = d.from_url(argv[1]);
+        site->download_chapters(0, 1);
         //TODO
     }
     else

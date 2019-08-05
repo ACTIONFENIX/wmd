@@ -17,9 +17,9 @@ Downloader::~Downloader()
 
 SiteBase *Downloader::from_url(const std::string &url)
 {
-    auto it = find(table.begin(), table.end(), [&url](const std::string& s)
+    auto it = find_if(table.begin(), table.end(), [&url](auto p)
     {
-        return url.find(s) != url.npos;
+        return url.find(p.first) != url.npos;
     });
     if (it != table.end())
     {

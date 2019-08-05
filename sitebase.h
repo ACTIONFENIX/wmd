@@ -13,26 +13,38 @@ public:
     using size_type = size_t;
 
 public:
-    SiteBase(CURL *c, const std::string& url);
+    SiteBase(CURL *c, const std::string& site, const std::string& url);
 
     virtual ~SiteBase() = default;
 
-    virtual void download_chapter(size_type begin, size_type end) const = 0;
+    void set_location(const std::string& location);
 
-    virtual void download_volume(size_type begin, size_type end) const = 0;
+    virtual void download_chapters(size_type begin, size_type end) = 0;
+
+    virtual void download_chapter(const std::string& chapter_url) = 0;
 
     virtual operator bool();
 
 protected:
-    static size_t write_data(void *from, size_t size, size_t nmemb, void *to);
+    static size_t write_data_vector(void *from, size_t size, size_t nmemb, void *to);
+
+    static size_t write_data_string(void *from, size_t size, size_t nmemb, void *to);
+
+    void download_main_page(const std::string &url);
+
+    void download_chapter_page(const std::string& url);
 
     void download_image(const std::string& url, const std::string& location);
 
 protected:
     CURL *m_easy_curl;
+    std::string m_site;
     const std::string m_url;
-    std::vector<char> m_buffer;
+    std::string m_main_page;
+    std::string m_chapter_page;
+    std::vector<char> m_image;
     std::ofstream m_file;
+    std::string m_location;
     bool m_good = true;
 };
 
