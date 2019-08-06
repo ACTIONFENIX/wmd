@@ -1,43 +1,48 @@
 #include "readmanga.h"
 #include <algorithm>
 #include <cassert>
+#include <experimental/filesystem>
+#include <iostream>
 
 ReadManga::ReadManga(CURL *c, const std::string& url): SiteBase(c, "http://readmanga.me", url)
 {
 
 }
 
-void ReadManga::download_chapters(size_type begin, size_type end)
+void ReadManga::download_chapters(size_t begin, size_t end)
 {
+    if (begin > end)
+    {
+        return;
+    }
     download_main_page(m_url);
 
-    std::string vol1_url = std::string("<a href=\"/") + std::string(m_url.data() + m_site.size() + 1) + "/vol";
-    auto i = m_main_page.find(vol1_url) + vol1_url.size();
-    assert(i != vol1_url.npos);
+    std::string begin_url = std::string("<a href=\"/") + std::string(m_url.data() + m_site.size() + 1) + "/vol";
+    auto i = m_main_page.find(begin_url) + begin_url.size();
+    assert(i != begin_url.npos);
     while (m_main_page[i] != '"')
     {
-        vol1_url += m_main_page[i];
+        begin_url += m_main_page[i];
         ++i;
     }
 
-    size_type chapter = 0;
-    std::string chapter_mask = vol1_url.substr(0, vol1_url.find("vol") + 3);
-    i = m_main_page.rfind(vol1_url);
-    i = m_main_page.rfind(vol1_url, i - 1);
+    size_t chapter = 0;
+    std::string chapter_mask = begin_url.substr(0, begin_url.find("vol") + 3);
+    i = m_main_page.rfind(begin_url);
+    i = m_main_page.rfind(begin_url, i - 1);
     while (chapter != begin)
     {
         i = m_main_page.rfind(chapter_mask);
         ++chapter;
     }
-    while (chapter != end + 1)
+    while (chapter != end + 1 && i != std::string::npos)
     {
+        std::experimental::filesystem::create_directories(std::experimental::filesystem::path(m_main_page.substr(i + std::string(R"(<a href=")").size(), m_main_page.find('"', i + std::string(R"(<a href=")").size()) - i - std::string(R"(<a href=")").size()).c_str() + 1));
         download_chapter(m_site + m_main_page.substr(i + std::string(R"(<a href=")").size(), m_main_page.find('"', i + std::string(R"(<a href=")").size()) - i - std::string(R"(<a href=")").size()));
         i = m_main_page.rfind(chapter_mask, i - 1);
         ++chapter;
     }
 }
-
-#include <iostream>
 
 void ReadManga::download_chapter(const std::string& chapter_url)
 {
@@ -57,8 +62,11 @@ void ReadManga::download_chapter(const std::string& chapter_url)
         image_server = m_chapter_page.substr(i, m_chapter_page.find('\'', i) - i);
         i = m_chapter_page.find('"', i) + 1;
         image_url = m_chapter_page.substr(i, m_chapter_page.find('"', i) - i);
-        image_filename = image_url.substr(image_url.rfind('/', image_url.find(".jpg")) + 1, image_url.find(".jpg") + std::string(".jpg").size() - image_url.rfind('/', image_url.find(".jpg")) - 1);
-        //image_filename = std::string(chapter_url.data() + m_site.size() + 1) + "/" + image_filename; doesn't create directories
+
+        auto filename_end = image_url.find(".");
+        auto filename_begin = image_url.rfind('/', filename_end) + 1;
+        image_filename = image_url.substr(filename_begin,  filename_end - filename_begin + 4);
+        image_filename = std::string(chapter_url.data() + m_site.size() + 1) + "/" + image_filename;
         std::cout << "image_server = " << image_server << std::endl;
         std::cout << "image_url = " << image_url << std::endl;
         std::cout << "image_filename = " << image_filename << std::endl;

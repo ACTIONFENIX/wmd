@@ -11,7 +11,7 @@ class ReadManga : public SiteBase
 public:
     ReadManga(CURL *c, const std::string& url);
 
-    void download_chapters(size_type begin, size_type end) override;
+    void download_chapters(size_t begin, size_t end) override;
 
     void download_chapter(const std::string& chapter_url) override;
 };

@@ -12,7 +12,7 @@ SOURCES += \
 
 QMAKE_CXXFLAGS += -Wall -Wextra
 
-LIBS += -lcurl
+LIBS += -lcurl -lstdc++fs
 
 HEADERS += \
     downloader.h \

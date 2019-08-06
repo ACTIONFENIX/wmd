@@ -10,16 +10,13 @@
 class SiteBase
 {
 public:
-    using size_type = size_t;
-
-public:
     SiteBase(CURL *c, const std::string& site, const std::string& url);
 
     virtual ~SiteBase() = default;
 
     void set_location(const std::string& location);
 
-    virtual void download_chapters(size_type begin, size_type end) = 0;
+    virtual void download_chapters(size_t begin, size_t end) = 0;
 
     virtual void download_chapter(const std::string& chapter_url) = 0;
 
