@@ -25,28 +25,40 @@ void ReadManga::download_chapters(size_t begin, size_t end)
         begin_url += m_main_page[i];
         ++i;
     }
+    begin_url += '"';
 
     size_t chapter = 0;
     std::string chapter_mask = begin_url.substr(0, begin_url.find("vol") + 3);
-    i = m_main_page.rfind(begin_url);
-    i = m_main_page.rfind(begin_url, i - 1);
+    i = m_main_page.find(begin_url);
+    i = m_main_page.find(begin_url, i + 1);
     while (chapter != begin)
     {
         i = m_main_page.rfind(chapter_mask);
         ++chapter;
     }
-    while (chapter != end + 1 && i != std::string::npos)
+    while (chapter <= end && i != std::string::npos)
     {
         std::experimental::filesystem::create_directories(std::experimental::filesystem::path(m_main_page.substr(i + std::string(R"(<a href=")").size(), m_main_page.find('"', i + std::string(R"(<a href=")").size()) - i - std::string(R"(<a href=")").size()).c_str() + 1));
         download_chapter(m_site + m_main_page.substr(i + std::string(R"(<a href=")").size(), m_main_page.find('"', i + std::string(R"(<a href=")").size()) - i - std::string(R"(<a href=")").size()));
         i = m_main_page.rfind(chapter_mask, i - 1);
         ++chapter;
     }
+    if (i == std::string::npos && chapter == begin)
+    {
+        std::cout << "No available chapters." << std::endl;
+    }
 }
 
 void ReadManga::download_chapter(const std::string& chapter_url)
 {
-    download_chapter_page(chapter_url);
+    download_chapter_page(chapter_url + "?mtr=1");
+    if (m_chapter_page.find("Купите мангу") != chapter_url.npos)
+    {
+        //TODO: raise an exception
+        std::cout << "You must buy this manga before you can download chapter " << chapter_url << std::endl;
+        m_chapter_page.clear();
+        return;
+    }
 
     const std::string images_begin_section = "rm_h.init";
     const std::string images_end_section = "</script>";
@@ -67,12 +79,10 @@ void ReadManga::download_chapter(const std::string& chapter_url)
         auto filename_begin = image_url.rfind('/', filename_end) + 1;
         image_filename = image_url.substr(filename_begin,  filename_end - filename_begin + 4);
         image_filename = std::string(chapter_url.data() + m_site.size() + 1) + "/" + image_filename;
-        std::cout << "image_server = " << image_server << std::endl;
-        std::cout << "image_url = " << image_url << std::endl;
-        std::cout << "image_filename = " << image_filename << std::endl;
         download_image(image_server + image_url, image_filename);
         i = m_chapter_page.find("http:", i);
     }
 
     m_chapter_page.clear();
+    std::cout << chapter_url.substr(chapter_url.rfind("/vol") + 1) << " ✓" << std::endl;
 }

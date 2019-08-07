@@ -45,7 +45,8 @@ void SiteBase::download_chapter_page(const std::string &url)
 
 SiteBase::SiteBase(CURL *c, const std::string& site, const std::string &url): m_easy_curl(c), m_site(site), m_url(url)
 {
-
+    //enable redirects
+    curl_easy_setopt(m_easy_curl, CURLOPT_FOLLOWLOCATION, true);
 }
 
 void SiteBase::set_location(const std::string &location)
