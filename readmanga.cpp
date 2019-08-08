@@ -30,13 +30,14 @@ void ReadManga::download_chapters(size_t begin, size_t end)
     size_t chapter = 0;
     std::string chapter_mask = begin_url.substr(0, begin_url.find("vol") + 3);
     i = m_main_page.find(begin_url);
+    auto begin_chapters_url_block = m_main_page.find("expandable chapters-link");
     i = m_main_page.find(begin_url, i + 1);
     while (chapter != begin)
     {
         i = m_main_page.rfind(chapter_mask);
         ++chapter;
     }
-    while (chapter <= end && i != std::string::npos)
+    while (chapter <= end && i != std::string::npos && i > begin_chapters_url_block)
     {
         std::experimental::filesystem::create_directories(std::experimental::filesystem::path(m_main_page.substr(i + std::string(R"(<a href=")").size(), m_main_page.find('"', i + std::string(R"(<a href=")").size()) - i - std::string(R"(<a href=")").size()).c_str() + 1));
         download_chapter(m_site + m_main_page.substr(i + std::string(R"(<a href=")").size(), m_main_page.find('"', i + std::string(R"(<a href=")").size()) - i - std::string(R"(<a href=")").size()));
@@ -51,6 +52,7 @@ void ReadManga::download_chapters(size_t begin, size_t end)
 
 void ReadManga::download_chapter(const std::string& chapter_url)
 {
+    std::cout << chapter_url.substr(chapter_url.rfind("/vol") + 1) << " " << std::flush;
     download_chapter_page(chapter_url + "?mtr=1");
     if (m_chapter_page.find("Купите мангу") != chapter_url.npos)
     {
@@ -84,5 +86,5 @@ void ReadManga::download_chapter(const std::string& chapter_url)
     }
 
     m_chapter_page.clear();
-    std::cout << chapter_url.substr(chapter_url.rfind("/vol") + 1) << " ✓" << std::endl;
+    std::cout << "✓" << std::endl;
 }
