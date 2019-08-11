@@ -1,5 +1,5 @@
 #include "mangafactory.h"
-#include "readmanga.h"
+#include "grouple.h"
 #include "mangaexception.h"
 #include <curl/curl.h>
 #include <algorithm>
@@ -42,4 +42,14 @@ MangaBase *MangaFactory::from_url(const std::string &url)
 MangaBase *MangaFactory::create_readmanga(CURL *c, const std::string& url) const
 {
     return new ReadManga(c, url);
+}
+
+MangaBase *MangaFactory::create_mintmanga(CURL *c, const std::string& url) const
+{
+    return new MintManga(c, url);
+}
+
+MangaBase *MangaFactory::create_selfmanga(CURL *c, const std::string& url) const
+{
+    return new SelfManga(c, url);
 }

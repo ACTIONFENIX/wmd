@@ -22,12 +22,18 @@ public:
 private:
     MangaBase *create_readmanga(CURL *c, const std::string& url) const;
 
+    MangaBase *create_mintmanga(CURL *c, const std::string& url) const;
+
+    MangaBase *create_selfmanga(CURL *c, const std::string& url) const;
+
 private:
     using table_entry = std::pair<const char*, MangaBase *(MangaFactory::*)(CURL*, const std::string&) const>;
 
-    static constexpr std::array<table_entry, 1> table =
+    static constexpr std::array<table_entry, 3> table =
     {
-        {std::make_pair("readmanga", &MangaFactory::create_readmanga)}
+        std::make_pair("readmanga", &MangaFactory::create_readmanga),
+        std::make_pair("mintmanga", &MangaFactory::create_mintmanga),
+        std::make_pair("selfmanga", &MangaFactory::create_selfmanga)
     };
 
 private:

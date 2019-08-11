@@ -1,15 +1,15 @@
-#include "readmanga.h"
+#include "grouplebase.h"
 #include "mangaexception.h"
 #include <algorithm>
 #include <experimental/filesystem>
 #include <iostream>
 
-ReadManga::ReadManga(CURL *c, const std::string& url): MangaBase(c, "http://readmanga.me", url)
+Grouple::Grouple(CURL *c, const std::string& site, const std::string& url): MangaBase(c, site, url)
 {
 
 }
 
-std::string ReadManga::get_first_chapter_url()
+std::string Grouple::get_first_chapter_url()
 {
     std::string first_chapter_url = std::string("<a href=\"/") + std::string(m_url.data() + m_site.size() + 1) + "/vol";
     auto i = m_main_page.find(first_chapter_url) + first_chapter_url.size();
@@ -26,7 +26,7 @@ std::string ReadManga::get_first_chapter_url()
     return first_chapter_url;
 }
 
-size_t ReadManga::skip_chapters(size_t i, size_t begin_chapter, const std::string& chapter_mask)
+size_t Grouple::skip_chapters(size_t i, size_t begin_chapter, const std::string& chapter_mask)
 {
     size_t chapter = 0;
 
@@ -38,7 +38,7 @@ size_t ReadManga::skip_chapters(size_t i, size_t begin_chapter, const std::strin
     return i;
 }
 
-void ReadManga::download_chapters(size_t begin_chapter, size_t end_chapter)
+void Grouple::download_chapters(size_t begin_chapter, size_t end_chapter)
 {
     if (begin_chapter > end_chapter)
     {
@@ -67,7 +67,7 @@ void ReadManga::download_chapters(size_t begin_chapter, size_t end_chapter)
     }
 }
 
-void ReadManga::download_chapter(const std::string& chapter_url)
+void Grouple::download_chapter(const std::string& chapter_url)
 {
     std::cout << chapter_url.substr(chapter_url.rfind("/vol") + 1) << " " << std::flush;
     download_chapter_page(chapter_url + "?mtr=1");
