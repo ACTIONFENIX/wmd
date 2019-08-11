@@ -1,5 +1,5 @@
-#ifndef ISITE_H
-#define ISITE_H
+#ifndef MANGABASE_H
+#define MANGABASE_H
 
 #include <cstddef>
 #include <curl/curl.h>
@@ -7,12 +7,12 @@
 #include <vector>
 #include <fstream>
 
-class SiteBase
+class MangaBase
 {
 public:
-    SiteBase(CURL *c, const std::string& site, const std::string& url);
+    MangaBase(CURL *c, const std::string& site, const std::string& url);
 
-    virtual ~SiteBase() = default;
+    virtual ~MangaBase() = default;
 
     void set_location(const std::string& location);
 
@@ -23,9 +23,10 @@ public:
     virtual operator bool();
 
 protected:
-    static size_t write_data_vector(void *from, size_t size, size_t nmemb, void *to);
+    template<typename T>
+    static size_t write_data(void *from, size_t size, size_t nmemb, void *to);
 
-    static size_t write_data_string(void *from, size_t size, size_t nmemb, void *to);
+    void examine_curl_code(CURLcode code);
 
     void download_main_page(const std::string &url);
 
@@ -45,4 +46,14 @@ protected:
     bool m_good = true;
 };
 
-#endif // ISITE_H
+template <typename T>
+size_t MangaBase::write_data(void *from, size_t size, size_t nmemb, void *to)
+{
+    T *pbuffer = static_cast<T*>(to);
+
+    pbuffer->reserve(pbuffer->size() + size * nmemb);
+    pbuffer->insert(pbuffer->end(), static_cast<char*>(from), static_cast<char*>(from) + size * nmemb);
+    return size * nmemb;
+}
+
+#endif // MANGABASE_H

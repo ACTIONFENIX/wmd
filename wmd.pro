@@ -5,16 +5,18 @@ CONFIG -= qt
 CONFIG += debug
 
 SOURCES += \
-        downloader.cpp \
         main.cpp \
-        readmanga.cpp \
-        sitebase.cpp
+        mangabase.cpp \
+        mangaexception.cpp \
+        mangafactory.cpp \
+        readmanga.cpp
 
 QMAKE_CXXFLAGS += -Wall -Wextra
 
 LIBS += -lcurl -lstdc++fs
 
 HEADERS += \
-    downloader.h \
-    readmanga.h \
-    sitebase.h
+    mangabase.h \
+    mangaexception.h \
+    mangafactory.h \
+    readmanga.h

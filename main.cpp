@@ -1,7 +1,7 @@
 #include <iostream>
 #include <curl/curl.h>
-#include "sitebase.h"
-#include "downloader.h"
+#include "mangabase.h"
+#include "mangafactory.h"
 #include <experimental/filesystem>
 
 int main(int argc, char *argv[])
@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     {
         int begin = 0;
         int end = -1;
-        if (argc == 3)
+        if (argc >= 3)
         {
             try
             {
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
                 return 0;
             }
         }
-        if (argc == 4)
+        if (argc >= 4)
         {
             try
             {
@@ -45,11 +45,18 @@ int main(int argc, char *argv[])
             }
         }
 
-        Downloader d;
-        SiteBase *site = d.from_url(argv[1]);
+        MangaFactory d;
+        MangaBase *site = d.from_url(argv[1]);
         if (site)
         {
-            site->download_chapters(static_cast<size_t>(begin), static_cast<size_t>(end));
+            try
+            {
+                site->download_chapters(static_cast<size_t>(begin), static_cast<size_t>(end));
+            }
+            catch (std::exception& e)
+            {
+                std::cout << "Error: " << e.what() << std::endl;
+            }
         }
         else
         {

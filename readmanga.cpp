@@ -1,52 +1,69 @@
 #include "readmanga.h"
+#include "mangaexception.h"
 #include <algorithm>
-#include <cassert>
 #include <experimental/filesystem>
 #include <iostream>
 
-ReadManga::ReadManga(CURL *c, const std::string& url): SiteBase(c, "http://readmanga.me", url)
+ReadManga::ReadManga(CURL *c, const std::string& url): MangaBase(c, "http://readmanga.me", url)
 {
 
 }
 
-void ReadManga::download_chapters(size_t begin, size_t end)
+std::string ReadManga::get_first_chapter_url()
 {
-    if (begin > end)
+    std::string first_chapter_url = std::string("<a href=\"/") + std::string(m_url.data() + m_site.size() + 1) + "/vol";
+    auto i = m_main_page.find(first_chapter_url) + first_chapter_url.size();
+    if (i == std::string::npos)
     {
-        return;
+        throw ParseError("Couldn't find any chapters in the web page.");
+    }
+    while (m_main_page[i] != '"')
+    {
+        first_chapter_url += m_main_page[i];
+        ++i;
+    }
+    first_chapter_url += '"';
+    return first_chapter_url;
+}
+
+size_t ReadManga::skip_chapters(size_t i, size_t begin_chapter, const std::string& chapter_mask)
+{
+    size_t chapter = 0;
+
+    while (chapter != begin_chapter)
+    {
+        i = m_main_page.rfind(chapter_mask, i - 1);
+        ++chapter;
+    }
+    return i;
+}
+
+void ReadManga::download_chapters(size_t begin_chapter, size_t end_chapter)
+{
+    if (begin_chapter > end_chapter)
+    {
+        throw IncorrectChaptersInterval();
     }
     download_main_page(m_url);
 
-    std::string begin_url = std::string("<a href=\"/") + std::string(m_url.data() + m_site.size() + 1) + "/vol";
-    auto i = m_main_page.find(begin_url) + begin_url.size();
-    assert(i != begin_url.npos);
-    while (m_main_page[i] != '"')
-    {
-        begin_url += m_main_page[i];
-        ++i;
-    }
-    begin_url += '"';
-
-    size_t chapter = 0;
-    std::string chapter_mask = begin_url.substr(0, begin_url.find("vol") + 3);
-    i = m_main_page.find(begin_url);
+    std::string first_chapter_url = get_first_chapter_url();
+    std::string chapter_mask = first_chapter_url.substr(0, first_chapter_url.find("vol") + 3);
+    auto i = m_main_page.find(first_chapter_url);
     auto begin_chapters_url_block = m_main_page.find("expandable chapters-link");
-    i = m_main_page.find(begin_url, i + 1);
-    while (chapter != begin)
-    {
-        i = m_main_page.rfind(chapter_mask);
-        ++chapter;
-    }
-    while (chapter <= end && i != std::string::npos && i > begin_chapters_url_block)
+    i = m_main_page.find(first_chapter_url, i + 1);
+
+    i = skip_chapters(i, begin_chapter, chapter_mask);
+    size_t chapter = begin_chapter;
+    while (chapter <= end_chapter && i != std::string::npos && i > begin_chapters_url_block)
     {
         std::experimental::filesystem::create_directories(std::experimental::filesystem::path(m_main_page.substr(i + std::string(R"(<a href=")").size(), m_main_page.find('"', i + std::string(R"(<a href=")").size()) - i - std::string(R"(<a href=")").size()).c_str() + 1));
         download_chapter(m_site + m_main_page.substr(i + std::string(R"(<a href=")").size(), m_main_page.find('"', i + std::string(R"(<a href=")").size()) - i - std::string(R"(<a href=")").size()));
         i = m_main_page.rfind(chapter_mask, i - 1);
         ++chapter;
     }
-    if (i == std::string::npos && chapter == begin)
+    if (i == std::string::npos && chapter == begin_chapter)
     {
-        std::cout << "No available chapters." << std::endl;
+        throw NoChapters();
     }
 }
 
@@ -56,10 +73,8 @@ void ReadManga::download_chapter(const std::string& chapter_url)
     download_chapter_page(chapter_url + "?mtr=1");
     if (m_chapter_page.find("Купите мангу") != chapter_url.npos)
     {
-        //TODO: raise an exception
-        std::cout << "You must buy this manga before you can download chapter " << chapter_url << std::endl;
         m_chapter_page.clear();
-        return;
+        throw NonFreeChapter(chapter_url);
     }
 
     const std::string images_begin_section = "rm_h.init";

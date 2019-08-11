@@ -1,21 +1,29 @@
-#include "downloader.h"
+#include "mangafactory.h"
 #include "readmanga.h"
+#include "mangaexception.h"
 #include <curl/curl.h>
 #include <algorithm>
 
-Downloader::Downloader()
+MangaFactory::MangaFactory()
 {
-    curl_global_init(CURL_GLOBAL_ALL);
+    if (curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK)
+    {
+        throw CURLInitError();
+    }
     m_easy_curl = curl_easy_init();
+    if (m_easy_curl == nullptr)
+    {
+        throw CURLInitError();
+    }
 }
 
-Downloader::~Downloader()
+MangaFactory::~MangaFactory()
 {
     curl_easy_cleanup(m_easy_curl);
     curl_global_cleanup();
 }
 
-SiteBase *Downloader::from_url(const std::string &url)
+MangaBase *MangaFactory::from_url(const std::string &url)
 {
     auto it = find_if(table.begin(), table.end(), [&url](auto p)
     {
@@ -31,7 +39,7 @@ SiteBase *Downloader::from_url(const std::string &url)
     }
 }
 
-SiteBase *Downloader::create_readmanga(CURL *c, const std::string& url) const
+MangaBase *MangaFactory::create_readmanga(CURL *c, const std::string& url) const
 {
     return new ReadManga(c, url);
 }
