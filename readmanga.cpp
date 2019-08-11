@@ -92,9 +92,9 @@ void ReadManga::download_chapter(const std::string& chapter_url)
         i = m_chapter_page.find('"', i) + 1;
         image_url = m_chapter_page.substr(i, m_chapter_page.find('"', i) - i);
 
-        auto filename_end = image_url.find(".");
+        auto filename_end = image_url.find("?");
         auto filename_begin = image_url.rfind('/', filename_end) + 1;
-        image_filename = image_url.substr(filename_begin,  filename_end - filename_begin + 4);
+        image_filename = image_url.substr(filename_begin,  filename_end - filename_begin);
         image_filename = std::string(chapter_url.data() + m_site.size() + 1) + "/" + image_filename;
         download_image(image_server + image_url, image_filename);
         i = m_chapter_page.find("http:", i);
