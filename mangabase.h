@@ -5,7 +5,6 @@
 #include <curl/curl.h>
 #include <string>
 #include <vector>
-#include <list>
 #include <fstream>
 
 struct ChapterInfo
@@ -23,7 +22,7 @@ public:
 
     void set_location(const std::string& location);
 
-    const std::list<ChapterInfo>& get_chapters_info();
+    const std::vector<ChapterInfo>& get_chapters_info();
 
     virtual void download_chapters(size_t begin, size_t end) = 0;
 
@@ -55,7 +54,7 @@ protected:
     std::ofstream m_file;
     std::string m_location;
     bool m_good = true;
-    std::list<ChapterInfo> m_chapter_list;
+    std::vector<ChapterInfo> m_chapter_list;
 };
 
 template <typename T>
