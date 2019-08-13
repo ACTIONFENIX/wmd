@@ -5,7 +5,14 @@
 #include <curl/curl.h>
 #include <string>
 #include <vector>
+#include <list>
 #include <fstream>
+
+struct ChapterInfo
+{
+    std::string fullname;
+    std::string url;
+};
 
 class MangaBase
 {
@@ -16,11 +23,15 @@ public:
 
     void set_location(const std::string& location);
 
+    const std::list<ChapterInfo>& get_chapters_info();
+
     virtual void download_chapters(size_t begin, size_t end) = 0;
 
-    virtual operator bool();
+    operator bool();
 
 protected:
+    virtual void download_chapters_list() = 0;
+
     virtual void download_chapter(const std::string& chapter_url) = 0;
 
     template<typename T>
@@ -44,6 +55,7 @@ protected:
     std::ofstream m_file;
     std::string m_location;
     bool m_good = true;
+    std::list<ChapterInfo> m_chapter_list;
 };
 
 template <typename T>

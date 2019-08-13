@@ -46,6 +46,12 @@ void MangaBase::set_location(const std::string &location)
     }
 }
 
+const std::list<ChapterInfo>& MangaBase::get_chapters_info()
+{
+    download_chapters_list();
+    return m_chapter_list;
+}
+
 MangaBase::operator bool()
 {
     return m_good;

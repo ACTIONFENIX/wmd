@@ -14,6 +14,10 @@ public:
     void download_chapters(size_t begin_chapter, size_t end_chapter) override;
 
 protected:
+    std::string get_chapter_fullname(size_t i);
+
+    void download_chapters_list() override;
+
     std::string get_first_chapter_url();
 
     size_t skip_chapters(size_t i, size_t begin_chapter, const std::string& chapter_mask);

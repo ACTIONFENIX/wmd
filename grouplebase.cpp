@@ -9,6 +9,60 @@ Grouple::Grouple(CURL *c, const std::string& site, const std::string& url): Mang
 
 }
 
+std::string Grouple::get_chapter_fullname(size_t i)
+{
+    std::string fullname;
+
+    auto fullname_i = m_main_page.find(" - ", i) - 1;
+    if (fullname_i == std::string::npos)
+    {
+        throw ParseError("Failed to get chapter's list.");
+    }
+    auto fullname_begin = fullname_i;
+    while (std::isdigit(m_main_page[fullname_begin]))
+    {
+        --fullname_begin;
+    }
+    ++fullname_begin;
+    auto fullname_end = fullname_i;
+    while (m_main_page[fullname_end] != '\n')
+    {
+        ++fullname_end;
+    }
+    --fullname_end;
+    fullname = m_main_page.substr(fullname_begin, fullname_end - fullname_begin + 1);
+    return fullname;
+}
+
+void Grouple::download_chapters_list()
+{
+    if (m_chapter_list.empty())
+    {
+        download_main_page(m_url);
+
+        std::string first_chapter_url = get_first_chapter_url();
+        std::string chapter_mask = first_chapter_url.substr(0, first_chapter_url.find("vol") + 3);
+        auto i = m_main_page.find(first_chapter_url);
+        auto begin_chapters_url_block = m_main_page.find("expandable chapters-link");
+        i = m_main_page.find(first_chapter_url, i + 1);
+
+        while (i != std::string::npos && i > begin_chapters_url_block)
+        {
+            ChapterInfo ci;
+
+            ci.fullname = get_chapter_fullname(i);
+            ci.url = m_site + (m_main_page.substr(i + std::string(R"(<a href=")").size(), m_main_page.find('"', i + std::string(R"(<a href=")").size()) - i - std::string(R"(<a href=")").size()).c_str() + 1);
+            m_chapter_list.push_back(ci);
+
+            i = m_main_page.rfind(chapter_mask, i - 1);
+        }
+        if (m_chapter_list.empty() == 1)
+        {
+            throw NoChapters();
+        }
+    }
+}
+
 std::string Grouple::get_first_chapter_url()
 {
     std::string first_chapter_url = std::string("<a href=\"/") + std::string(m_url.data() + m_site.size() + 1) + "/vol";
@@ -38,12 +92,9 @@ size_t Grouple::skip_chapters(size_t i, size_t begin_chapter, const std::string&
     return i;
 }
 
+//TODO: use m_chapters_list
 void Grouple::download_chapters(size_t begin_chapter, size_t end_chapter)
 {
-    if (begin_chapter > end_chapter)
-    {
-        throw IncorrectChaptersInterval();
-    }
     download_main_page(m_url);
 
     std::string first_chapter_url = get_first_chapter_url();
@@ -61,10 +112,6 @@ void Grouple::download_chapters(size_t begin_chapter, size_t end_chapter)
         download_chapter(m_site + m_main_page.substr(i + std::string(R"(<a href=")").size(), m_main_page.find('"', i + std::string(R"(<a href=")").size()) - i - std::string(R"(<a href=")").size()));
         i = m_main_page.rfind(chapter_mask, i - 1);
         ++chapter;
-    }
-    if (i == std::string::npos && chapter == begin_chapter)
-    {
-        throw NoChapters();
     }
 }
 

@@ -68,14 +68,6 @@ private:
     std::string m_chapter_url;
 };
 
-class IncorrectChaptersInterval: public MangaException
-{
-public:
-    const char *what() const noexcept override;
-
-    ~IncorrectChaptersInterval() override = default;
-};
-
 class PermissionDenied: public MangaException
 {
 public:

@@ -25,11 +25,6 @@ const char *NonFreeChapter::what() const noexcept
     return (std::string("You must buy this manga before you can download chapter ") + m_chapter_url).c_str();
 }
 
-const char *IncorrectChaptersInterval::what() const noexcept
-{
-    return "Incorrect chapters interval specified.";
-}
-
 const char *PermissionDenied::what() const noexcept
 {
     return (std::string("Couldn't create ") + m_file).c_str();
