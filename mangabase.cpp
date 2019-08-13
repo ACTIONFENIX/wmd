@@ -40,6 +40,10 @@ MangaBase::MangaBase(CURL *c, const std::string& site, const std::string &url): 
 void MangaBase::set_location(const std::string &location)
 {
     m_location = location;
+    if (m_location.back() != '/')
+    {
+        m_location.push_back('/');
+    }
 }
 
 MangaBase::operator bool()
@@ -47,14 +51,14 @@ MangaBase::operator bool()
     return m_good;
 }
 
-void MangaBase::download_image(const std::string &url, const std::string &location)
+void MangaBase::download_image(const std::string &url, const std::string &filename)
 {
     curl_easy_setopt(m_easy_curl, CURLOPT_WRITEFUNCTION, write_data<std::vector<char>>);
     curl_easy_setopt(m_easy_curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(m_easy_curl, CURLOPT_WRITEDATA, &m_image);
     examine_curl_code(curl_easy_perform(m_easy_curl));
 
-    m_file.open(location);
+    m_file.open(m_location + filename);
     //TODO: add error management
     m_file.write(m_image.data(), m_image.size());
     m_file.close();

@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
 
         MangaFactory d;
         MangaBase *site = d.from_url(argv[1]);
+        site->set_location("/home/michael/Рабочий стол");
         if (site)
         {
             try

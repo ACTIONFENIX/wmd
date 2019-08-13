@@ -56,7 +56,8 @@ void Grouple::download_chapters(size_t begin_chapter, size_t end_chapter)
     size_t chapter = begin_chapter;
     while (chapter <= end_chapter && i != std::string::npos && i > begin_chapters_url_block)
     {
-        std::experimental::filesystem::create_directories(std::experimental::filesystem::path(m_main_page.substr(i + std::string(R"(<a href=")").size(), m_main_page.find('"', i + std::string(R"(<a href=")").size()) - i - std::string(R"(<a href=")").size()).c_str() + 1));
+        std::string chapter_directory = m_location + (m_main_page.substr(i + std::string(R"(<a href=")").size(), m_main_page.find('"', i + std::string(R"(<a href=")").size()) - i - std::string(R"(<a href=")").size()).c_str() + 1);
+        std::experimental::filesystem::create_directories(std::experimental::filesystem::path(chapter_directory));
         download_chapter(m_site + m_main_page.substr(i + std::string(R"(<a href=")").size(), m_main_page.find('"', i + std::string(R"(<a href=")").size()) - i - std::string(R"(<a href=")").size()));
         i = m_main_page.rfind(chapter_mask, i - 1);
         ++chapter;
