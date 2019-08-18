@@ -14,7 +14,11 @@ std::string Grouple::get_chapter_fullname(size_t i)
     std::string fullname;
 
     auto fullname_i = m_main_page.find(" - ", i) - 1;
-    if (fullname_i == std::string::npos)
+    if (fullname_i == std::string::npos - 1)
+    {
+        fullname_i = m_main_page.find("Сингл", i) - 1;
+    }
+    if (fullname_i == std::string::npos - 1)
     {
         throw ParseError("Failed to get chapter's list.");
     }
