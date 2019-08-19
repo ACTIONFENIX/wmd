@@ -1,6 +1,6 @@
 #include "mangafactory.h"
 #include "grouple.h"
-#include "mangaexception.h"
+#include "errorhandler.h"
 #include <curl/curl.h>
 #include <algorithm>
 
@@ -8,12 +8,12 @@ MangaFactory::MangaFactory()
 {
     if (curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK)
     {
-        throw CURLInitError();
+        ErrorHandler err("Couldn't initialize libcurl.", ErrorType::Critical);
     }
     m_easy_curl = curl_easy_init();
     if (m_easy_curl == nullptr)
     {
-        throw CURLInitError();
+        ErrorHandler err("Couldn't initialize libcurl.", ErrorType::Critical);
     }
 }
 

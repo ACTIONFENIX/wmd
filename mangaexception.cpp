@@ -1,10 +1,5 @@
 #include "mangaexception.h"
 
-const char *CURLInitError::what() const noexcept
-{
-    return "Couldn't initialize libcurl.";
-}
-
 const char *CURLError::what() const noexcept
 {
     return curl_easy_strerror(m_code);

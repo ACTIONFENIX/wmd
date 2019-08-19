@@ -2,6 +2,7 @@
 #include "mangaexception.h"
 #include <algorithm>
 #include <experimental/filesystem>
+#include "errorhandler.h"
 #include <iostream>
 
 Grouple::Grouple(CURL *c, const std::string& site, const std::string& url): MangaBase(c, site, url)
@@ -51,6 +52,10 @@ void Grouple::download_chapters_list()
         std::string chapter_mask = first_chapter_url.substr(0, first_chapter_url.find("vol") + 3);
         auto i = m_main_page.find(first_chapter_url);
         auto begin_chapters_url_block = m_main_page.find("expandable chapters-link");
+        if (i == std::string::npos || begin_chapters_url_block == std::string::npos)
+        {
+            throw NoChapters();
+        }
         i = m_main_page.find(first_chapter_url, i + 1);
 
         while (i != std::string::npos && i > begin_chapters_url_block)

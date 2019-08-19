@@ -1,6 +1,8 @@
 #include "mangabase.h"
 #include "mangaexception.h"
 
+#include <iostream>
+
 void MangaBase::examine_curl_code(CURLcode code)
 {
     if (code != CURLE_OK)

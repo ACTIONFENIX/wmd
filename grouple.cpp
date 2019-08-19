@@ -1,8 +1,4 @@
 #include "grouple.h"
-#include "mangaexception.h"
-#include <algorithm>
-#include <experimental/filesystem>
-#include <iostream>
 
 ReadManga::ReadManga(CURL *c, const std::string& url): Grouple(c, "http://readmanga.me", url)
 {

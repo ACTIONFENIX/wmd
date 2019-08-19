@@ -13,14 +13,6 @@ public:
     ~MangaException() override = default;
 };
 
-class CURLInitError: public MangaException
-{
-public:
-    const char *what() const noexcept override;
-
-    ~CURLInitError() override = default;
-};
-
 class CURLError: public MangaException
 {
 public:
