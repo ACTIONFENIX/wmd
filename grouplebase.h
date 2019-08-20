@@ -22,7 +22,7 @@ protected:
 
     size_t skip_chapters(size_t i, size_t begin_chapter, const std::string& chapter_mask);
 
-    void download_chapter(const std::string& chapter_url) override;
+    void download_chapter(size_t i) override;
 };
 
 #endif // GROUPLE_H

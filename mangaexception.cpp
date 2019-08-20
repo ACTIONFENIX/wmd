@@ -17,10 +17,10 @@ const char *NoChapters::what() const noexcept
 
 const char *NonFreeChapter::what() const noexcept
 {
-    return (std::string("You must buy this manga before you can download chapter ") + m_chapter_url).c_str();
+    return m_err_text.c_str();
 }
 
 const char *PermissionDenied::what() const noexcept
 {
-    return (std::string("Couldn't create ") + m_file).c_str();
+    return m_err_text.c_str();
 }

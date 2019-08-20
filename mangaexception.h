@@ -50,27 +50,27 @@ public:
 class NonFreeChapter: public MangaException
 {
 public:
-    NonFreeChapter(const std::string& chapter_url): m_chapter_url(chapter_url) {}
+    NonFreeChapter(const std::string& chapter_url): m_err_text(std::string("You must buy this manga before you can download chapter ") + chapter_url) {}
 
     const char *what() const noexcept override;
 
     ~NonFreeChapter() override = default;
 
 private:
-    std::string m_chapter_url;
+    std::string m_err_text;
 };
 
 class PermissionDenied: public MangaException
 {
 public:
-    PermissionDenied(const std::string& file): m_file(file) {}
+    PermissionDenied(const std::string& file): m_err_text(std::string("Couldn't create ") + file) {}
 
     const char *what() const noexcept override;
 
     ~PermissionDenied() override = default;
 
 private:
-    std::string m_file;
+    std::string m_err_text;
 };
 
 #endif // MANGAEXCEPTION_H

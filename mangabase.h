@@ -31,7 +31,7 @@ public:
 protected:
     virtual void download_chapters_list() = 0;
 
-    virtual void download_chapter(const std::string& chapter_url) = 0;
+    virtual void download_chapter(size_t i) = 0;
 
     template<typename T>
     static size_t write_data(void *from, size_t size, size_t nmemb, void *to);

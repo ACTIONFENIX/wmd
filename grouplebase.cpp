@@ -100,17 +100,17 @@ void Grouple::download_chapters(size_t begin_chapter, size_t end_chapter)
     {
         std::string chapter_directory = m_location + m_chapter_list[chapter].url.substr(m_site.size() + 1);
         std::experimental::filesystem::create_directories(std::experimental::filesystem::path(chapter_directory));
-        download_chapter(m_chapter_list[chapter].url);
+        download_chapter(chapter);
     }
 }
 
-void Grouple::download_chapter(const std::string& chapter_url)
+void Grouple::download_chapter(size_t chapter_i)
 {
-    download_chapter_page(chapter_url + "?mtr=1");
-    if (m_chapter_page.find("Купите мангу") != chapter_url.npos)
+    download_chapter_page(m_chapter_list[chapter_i].url + "?mtr=1");
+    if (m_chapter_page.find("Купите мангу") != std::string::npos)
     {
         m_chapter_page.clear();
-        throw NonFreeChapter(chapter_url);
+        throw NonFreeChapter(m_chapter_list[chapter_i].fullname);
     }
 
     const std::string images_begin_section = "rm_h.init";
@@ -131,7 +131,7 @@ void Grouple::download_chapter(const std::string& chapter_url)
         auto filename_end = image_url.find("?");
         auto filename_begin = image_url.rfind('/', filename_end) + 1;
         image_filename = image_url.substr(filename_begin,  filename_end - filename_begin);
-        image_filename = std::string(chapter_url.data() + m_site.size() + 1) + "/" + image_filename;
+        image_filename = std::string(m_chapter_list[chapter_i].url.data() + m_site.size() + 1) + "/" + image_filename;
         download_image(image_server + image_url, image_filename);
         i = m_chapter_page.find("http:", i);
     }
