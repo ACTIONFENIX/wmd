@@ -30,7 +30,7 @@
       <item>
        <widget class="QPushButton" name="pushButton">
         <property name="text">
-         <string>OK</string>
+         <string>Find</string>
         </property>
        </widget>
       </item>
@@ -46,10 +46,11 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>573</width>
-         <height>192</height>
+         <width>579</width>
+         <height>209</height>
         </rect>
        </property>
+       <layout class="QVBoxLayout" name="verticalLayout_2"/>
       </widget>
      </widget>
     </item>

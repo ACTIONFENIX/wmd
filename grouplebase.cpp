@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <experimental/filesystem>
 #include "errorhandler.h"
-#include <iostream>
 
 Grouple::Grouple(CURL *c, const std::string& site, const std::string& url): MangaBase(c, site, url)
 {
@@ -107,7 +106,6 @@ void Grouple::download_chapters(size_t begin_chapter, size_t end_chapter)
 
 void Grouple::download_chapter(const std::string& chapter_url)
 {
-    std::cout << chapter_url.substr(chapter_url.rfind("/vol") + 1) << " " << std::flush;
     download_chapter_page(chapter_url + "?mtr=1");
     if (m_chapter_page.find("Купите мангу") != chapter_url.npos)
     {
@@ -139,5 +137,4 @@ void Grouple::download_chapter(const std::string& chapter_url)
     }
 
     m_chapter_page.clear();
-    std::cout << "✓" << std::endl;
 }
