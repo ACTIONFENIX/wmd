@@ -6,6 +6,7 @@
 #include "mangabase.h"
 #include <curl/curl.h>
 
+//returns concrete manga site downloader to work with
 class MangaFactory
 {
 public:

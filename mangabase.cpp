@@ -54,9 +54,12 @@ const std::vector<ChapterInfo> &MangaBase::get_chapters_info()
     return m_chapter_list;
 }
 
-MangaBase::operator bool()
+void MangaBase::download_chapters(size_t begin_chapter, size_t end_chapter)
 {
-    return m_good;
+    for (auto chapter = begin_chapter; chapter <= end_chapter; ++chapter)
+    {
+        download_chapter(chapter);
+    }
 }
 
 void MangaBase::download_image(const std::string &url, const std::string &filename)
@@ -66,8 +69,8 @@ void MangaBase::download_image(const std::string &url, const std::string &filena
     curl_easy_setopt(m_easy_curl, CURLOPT_WRITEDATA, &m_image);
     examine_curl_code(curl_easy_perform(m_easy_curl));
 
-    m_file.open(m_location + filename);
     //TODO: add error management
+    m_file.open(m_location + filename);
     m_file.write(m_image.data(), m_image.size());
     m_file.close();
     m_image.clear();

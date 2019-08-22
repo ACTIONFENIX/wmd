@@ -6,21 +6,20 @@
 #include <string>
 #include <vector>
 
+//Base class for readmanga.me, mintmanga.com and selfmanga.ru downloaders
 class Grouple : public MangaBase
 {
 public:
     Grouple(CURL *c, const std::string& site, const std::string& url);
 
-    void download_chapters(size_t begin_chapter, size_t end_chapter) override;
-
 protected:
+    //function to fill ChapterInfo.fullname
     std::string get_chapter_fullname(size_t i);
 
     void download_chapters_list() override;
 
+    //looks for text <a href="/manga_title/vol and gets from it first chapter url
     std::string get_first_chapter_url();
-
-    size_t skip_chapters(size_t i, size_t begin_chapter, const std::string& chapter_mask);
 
     void download_chapter(size_t i) override;
 };

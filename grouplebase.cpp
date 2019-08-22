@@ -1,7 +1,7 @@
 #include "grouplebase.h"
 #include "mangaexception.h"
 #include <algorithm>
-#include <experimental/filesystem>
+#include <filesystem>
 #include "errorhandler.h"
 
 Grouple::Grouple(CURL *c, const std::string& site, const std::string& url): MangaBase(c, site, url)
@@ -13,8 +13,9 @@ std::string Grouple::get_chapter_fullname(size_t i)
 {
     std::string fullname;
 
+    //if its not oneshot, then its fullname will start with "number - number"
     auto fullname_i = m_main_page.find(" - ", i) - 1;
-    if (fullname_i == std::string::npos - 1)
+    if (fullname_i == std::string::npos - 1) //or if its oneshot, its page will contain word Сингл
     {
         fullname_i = m_main_page.find("Сингл", i) - 1;
     }
@@ -91,21 +92,12 @@ std::string Grouple::get_first_chapter_url()
     return first_chapter_url;
 }
 
-void Grouple::download_chapters(size_t begin_chapter, size_t end_chapter)
-{
-    download_chapters_list();
-    end_chapter = std::min(end_chapter, m_chapter_list.size() - 1);
-
-    for (auto chapter = begin_chapter; chapter <= end_chapter; ++chapter)
-    {
-        std::string chapter_directory = m_location + m_chapter_list[chapter].url.substr(m_site.size() + 1);
-        std::experimental::filesystem::create_directories(std::experimental::filesystem::path(chapter_directory));
-        download_chapter(chapter);
-    }
-}
-
 void Grouple::download_chapter(size_t chapter_i)
 {
+    download_chapters_list();
+    std::string chapter_directory = m_location + m_chapter_list[chapter_i].url.substr(m_site.size() + 1);
+    //add try / catch ?
+    std::filesystem::create_directories(std::filesystem::path(chapter_directory));
     download_chapter_page(m_chapter_list[chapter_i].url + "?mtr=1");
     if (m_chapter_page.find("Купите мангу") != std::string::npos)
     {

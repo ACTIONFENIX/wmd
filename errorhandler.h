@@ -10,6 +10,7 @@ enum class ErrorType
     Critical
 };
 
+//Shows error message when constructor is called
 class ErrorHandler
 {
 public:

@@ -7,6 +7,7 @@
 #include <vector>
 #include <fstream>
 
+//fullname - "volumes_number - chapters_number chapters_title"
 struct ChapterInfo
 {
     std::string fullname;
@@ -20,22 +21,23 @@ public:
 
     virtual ~MangaBase() = default;
 
+    //set directory where to download chapters
     void set_location(const std::string& location);
 
     const std::vector<ChapterInfo>& get_chapters_info();
 
-    virtual void download_chapters(size_t begin, size_t end) = 0;
+    void download_chapters(size_t begin, size_t end);
 
-    operator bool();
+    virtual void download_chapter(size_t i) = 0;
 
 protected:
     virtual void download_chapters_list() = 0;
 
-    virtual void download_chapter(size_t i) = 0;
-
+    //append downloaded block of bytes (webpage or image) to container to with type T
     template<typename T>
     static size_t write_data(void *from, size_t size, size_t nmemb, void *to);
 
+    //check if curl operation returned CURL_OK
     void examine_curl_code(CURLcode code);
 
     void download_main_page(const std::string &url);
@@ -53,7 +55,6 @@ protected:
     std::vector<char> m_image;
     std::ofstream m_file;
     std::string m_location;
-    bool m_good = true;
     std::vector<ChapterInfo> m_chapter_list;
 };
 

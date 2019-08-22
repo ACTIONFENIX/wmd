@@ -46,9 +46,9 @@ HEADERS += \
 FORMS += \
         mainwindow.ui
 
-QMAKE_CXXFLAGS += -Wall -Wextra
+QMAKE_CXXFLAGS += -Wall -Wextra -Wpedantic
 
-LIBS += -lcurl -lstdc++fs
+LIBS += -lcurl
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
