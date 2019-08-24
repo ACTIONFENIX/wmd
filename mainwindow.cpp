@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("wmd");
     QObject::connect(this, SIGNAL(signalUpdateChaptersPalette(unsigned int)), this, SLOT(updateChaptersPalette(unsigned int)));
     QObject::connect(this, SIGNAL(signalErrorOccured(const QString&)), this, SLOT(showError(const QString&)));
+    QObject::connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::showAbout);
+    QObject::connect(ui->actionExit, &QAction::triggered, this, exit);
 }
 
 MainWindow::~MainWindow()
@@ -111,4 +113,12 @@ void MainWindow::updateChaptersPalette(unsigned int i)
 void MainWindow::showError(const QString &str)
 {
     ErrorHandler err(str.toStdString());
+}
+
+void MainWindow::showAbout()
+{
+    QMessageBox msg_box;
+    msg_box.setWindowTitle("About");
+    msg_box.setText("WMD - Wind Manga Downloader v0.1\nSource: https://github.com/ACTIONFENIX/wmd");
+    msg_box.exec();
 }

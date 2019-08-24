@@ -39,6 +39,8 @@ private slots:
     //show exception error occured in downloading thread
     void showError(const QString &);
 
+    void showAbout();
+
 private:
     //remove all checkboxes
     void clear_chapters();
