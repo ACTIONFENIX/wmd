@@ -26,6 +26,14 @@ private:
     CURLcode m_code;
 };
 
+class SiteNotSupported: public MangaException
+{
+public:
+    const char *what() const noexcept override;
+
+    ~SiteNotSupported() override = default;
+};
+
 class ParseError: public MangaException
 {
 public:

@@ -5,9 +5,10 @@
 #include <array>
 #include "mangabase.h"
 #include <curl/curl.h>
+#include <memory>
 
 //returns concrete manga site downloader to work with
-class MangaFactory
+class MangaFactory: public IMangaBase
 {
 public:
     MangaFactory();
@@ -20,7 +21,13 @@ public:
 
     void set_location(const std::string& location);
 
-    MangaBase *from_url(const std::string &url);
+    const std::vector<ChapterInfo>& get_chapters_info();
+
+    void download_chapters(size_t begin, size_t end);
+
+    void download_chapter(size_t i);
+
+    void set_url(const std::string &url);
 
 private:
     MangaBase *create_readmanga(CURL *c, const std::string& url) const;
@@ -41,7 +48,9 @@ private:
 
 private:
     CURL *m_easy_curl;
+    std::unique_ptr<MangaBase> m_manga_downloader;
     std::string m_location;
+    std::string m_url;
 };
 
 #endif // DOWNLOADER_H

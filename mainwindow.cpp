@@ -43,29 +43,22 @@ void MainWindow::on_pushButton_clicked()
 {
     if (mode == Mode::show_chapters)
     {
-        site = std::unique_ptr<MangaBase>(mf.from_url(ui->lineEdit->text().toStdString()));
-        if (site)
+        try
         {
-            try
+            mf.set_url(ui->lineEdit->text().toStdString());
+            auto ch_info = mf.get_chapters_info();
+            for (auto i: ch_info)
             {
-                auto ch_info = site->get_chapters_info();
-                for (auto i: ch_info)
-                {
-                    add_chapter(i.fullname);
-                }
+                add_chapter(i.fullname);
             }
-            catch (std::exception& e)
-            {
-                ErrorHandler err(e.what());
-                return;
-            }
-            mode = Mode::download_chapters;
-            ui->pushButton->setText("Download");
         }
-        else
+        catch (std::exception& e)
         {
-            ErrorHandler err("Site is not supported.");
+            ErrorHandler err(e.what());
+            return;
         }
+        mode = Mode::download_chapters;
+        ui->pushButton->setText("Download");
     }
     else
     {
@@ -98,7 +91,7 @@ void MainWindow::download_chapters()
         {
             if (chapters_list[i]->isChecked())
             {
-                site->download_chapter(i);
+                mf.download_chapter(i);
                 emit signalUpdateChaptersPalette(i);
             }
         }
@@ -139,10 +132,6 @@ void MainWindow::showOptions()
     if (options_dialog->exec() == QDialog::Accepted)
     {
         mf.set_location(options_ui.label->text().toStdString().c_str() + std::string("Download to\n").size());
-        if (site)
-        {
-            site->set_location(options_ui.label->text().toStdString().c_str() + std::string("Download to\n").size());
-        }
     }
 }
 

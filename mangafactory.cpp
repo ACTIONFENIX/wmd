@@ -1,5 +1,6 @@
 #include "mangafactory.h"
 #include "grouple.h"
+#include "mangaexception.h"
 #include "errorhandler.h"
 #include <curl/curl.h>
 #include <algorithm>
@@ -26,9 +27,41 @@ MangaFactory::~MangaFactory()
 void MangaFactory::set_location(const std::string& location)
 {
     m_location = location;
+    if (m_manga_downloader)
+    {
+        m_manga_downloader->set_location(m_location);
+    }
 }
 
-MangaBase *MangaFactory::from_url(const std::string &url)
+const std::vector<ChapterInfo>& MangaFactory::get_chapters_info()
+{
+    if (m_manga_downloader)
+    {
+        return m_manga_downloader->get_chapters_info();
+    }
+    else
+    {
+        throw SiteNotSupported();
+    }
+}
+
+void MangaFactory::download_chapters(size_t begin, size_t end)
+{
+    if (m_manga_downloader)
+    {
+        m_manga_downloader->download_chapters(begin, end);
+    }
+}
+
+void MangaFactory::download_chapter(size_t i)
+{
+    if (m_manga_downloader)
+    {
+        m_manga_downloader->download_chapter(i);
+    }
+}
+
+void MangaFactory::set_url(const std::string &url)
 {
     auto it = find_if(table.begin(), table.end(), [&url](auto p)
     {
@@ -36,31 +69,27 @@ MangaBase *MangaFactory::from_url(const std::string &url)
     });
     if (it != table.end())
     {
-        return ((*this).*(it->second))(m_easy_curl, url);
+        m_manga_downloader = std::unique_ptr<MangaBase>(((*this).*(it->second))(m_easy_curl, url));
+        m_manga_downloader->set_location(m_location);
+        m_url = url;
     }
     else
     {
-        return nullptr;
+        throw SiteNotSupported();
     }
 }
 
 MangaBase *MangaFactory::create_readmanga(CURL *c, const std::string& url) const
 {
-    MangaBase *ret = new ReadManga(c, url);
-    ret->set_location(m_location);
-    return ret;
+    return new ReadManga(c, url);
 }
 
 MangaBase *MangaFactory::create_mintmanga(CURL *c, const std::string& url) const
 {
-    MangaBase *ret = new MintManga(c, url);
-    ret->set_location(m_location);
-    return ret;
+    return new MintManga(c, url);
 }
 
 MangaBase *MangaFactory::create_selfmanga(CURL *c, const std::string& url) const
 {
-    MangaBase *ret = new SelfManga(c, url);
-    ret->set_location(m_location);
-    return ret;
+    return new SelfManga(c, url);
 }

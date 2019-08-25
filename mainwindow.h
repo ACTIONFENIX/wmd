@@ -70,9 +70,8 @@ private:
     std::vector<QCheckBox*> chapters_list;
     Mode mode = Mode::show_chapters;
     MangaFactory mf;
-    std::unique_ptr<MangaBase> site;
     std::thread th{[](){}};
-    bool is_downloaded = false;
+    bool is_downloaded = false; //to use
 };
 
 #endif // MAINWINDOW_H

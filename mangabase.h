@@ -14,7 +14,22 @@ struct ChapterInfo
     std::string url;
 };
 
-class MangaBase
+class IMangaBase
+{
+public:
+    virtual ~IMangaBase() = default;
+
+    //set directory where to download chapters
+    virtual void set_location(const std::string& location) = 0;
+
+    virtual const std::vector<ChapterInfo>& get_chapters_info() = 0;
+
+    virtual void download_chapters(size_t begin, size_t end) = 0;
+
+    virtual void download_chapter(size_t i) = 0;
+};
+
+class MangaBase: public IMangaBase
 {
 public:
     MangaBase(CURL *c, const std::string& site, const std::string& url);
@@ -22,13 +37,13 @@ public:
     virtual ~MangaBase() = default;
 
     //set directory where to download chapters
-    void set_location(const std::string& location);
+    void set_location(const std::string& location) override;
 
-    const std::vector<ChapterInfo>& get_chapters_info();
+    const std::vector<ChapterInfo>& get_chapters_info() override;
 
-    void download_chapters(size_t begin, size_t end);
+    void download_chapters(size_t begin, size_t end) override;
 
-    virtual void download_chapter(size_t i) = 0;
+    void download_chapter(size_t i) override = 0;
 
 protected:
     virtual void download_chapters_list() = 0;

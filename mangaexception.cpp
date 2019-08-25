@@ -5,6 +5,12 @@ const char *CURLError::what() const noexcept
     return curl_easy_strerror(m_code);
 }
 
+const char *SiteNotSupported::what() const noexcept
+{
+    return "Site is not supported.";
+}
+
+
 const char *ParseError::what() const noexcept
 {
     return m_error.c_str();
