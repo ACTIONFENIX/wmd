@@ -3,11 +3,13 @@
 
 #include <QMainWindow>
 #include <QCheckBox>
+#include <QDialog>
 #include <memory>
 #include <vector>
 #include <thread>
 #include "mangafactory.h"
 #include "mangabase.h"
+#include "ui_dialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -39,9 +41,13 @@ private slots:
     //show exception error occured in downloading thread
     void showError(const QString &);
 
+    void showOptions();
+
     void showAbout();
 
 private:
+    void setupConnections();
+
     //remove all checkboxes
     void clear_chapters();
 
@@ -59,11 +65,14 @@ private:
 
 private:
     Ui::MainWindow *ui;
+    QDialog *options_dialog;
+    Ui_Dialog options_ui;
     std::vector<QCheckBox*> chapters_list;
     Mode mode = Mode::show_chapters;
     MangaFactory mf;
     std::unique_ptr<MangaBase> site;
     std::thread th{[](){}};
+    bool is_downloaded = false;
 };
 
 #endif // MAINWINDOW_H

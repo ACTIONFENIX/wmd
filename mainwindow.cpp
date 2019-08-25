@@ -1,7 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "errorhandler.h"
-#include <iostream>
+#include <QDialog>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -9,16 +10,32 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("wmd");
-    QObject::connect(this, SIGNAL(signalUpdateChaptersPalette(unsigned int)), this, SLOT(updateChaptersPalette(unsigned int)));
-    QObject::connect(this, SIGNAL(signalErrorOccured(const QString&)), this, SLOT(showError(const QString&)));
-    QObject::connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::showAbout);
-    QObject::connect(ui->actionExit, &QAction::triggered, this, exit);
+    options_dialog = new QDialog(this);
+    options_ui.setupUi(options_dialog);
+    setupConnections();
 }
 
 MainWindow::~MainWindow()
 {
     th.detach();
     delete ui;
+}
+
+void MainWindow::setupConnections()
+{
+    QObject::connect(this, SIGNAL(signalUpdateChaptersPalette(unsigned int)), this, SLOT(updateChaptersPalette(unsigned int)));
+    QObject::connect(this, SIGNAL(signalErrorOccured(const QString&)), this, SLOT(showError(const QString&)));
+    QObject::connect(ui->actionOptions, &QAction::triggered, this, &MainWindow::showOptions);
+    QObject::connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::showAbout);
+    QObject::connect(ui->actionExit, &QAction::triggered, this, exit);
+    QObject::connect(options_ui.pushButton, &QPushButton::clicked, [this]()
+    {
+        auto dir = QFileDialog::getExistingDirectory(options_ui.widget, "Directory", "");
+        if (!dir.isEmpty())
+        {
+            options_ui.label->setText(QString("Download to\n") + dir);
+        }
+    });
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -90,6 +107,7 @@ void MainWindow::download_chapters()
     {
         emit signalErrorOccured(QString(e.what()));
     }
+    is_downloaded = true;
 }
 
 void MainWindow::on_lineEdit_textChanged(const QString &)
@@ -97,6 +115,7 @@ void MainWindow::on_lineEdit_textChanged(const QString &)
     mode = Mode::show_chapters;
     ui->pushButton->setText("Find");
     clear_chapters();
+    is_downloaded = false;
 }
 
 void MainWindow::updateChaptersPalette(unsigned int i)
@@ -113,6 +132,14 @@ void MainWindow::updateChaptersPalette(unsigned int i)
 void MainWindow::showError(const QString &str)
 {
     ErrorHandler err(str.toStdString());
+}
+
+void MainWindow::showOptions()
+{
+    if (options_dialog->exec() == QDialog::Accepted)
+    {
+        //update options
+    }
 }
 
 void MainWindow::showAbout()

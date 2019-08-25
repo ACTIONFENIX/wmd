@@ -44,6 +44,7 @@ HEADERS += \
         mangafactory.h
 
 FORMS += \
+        dialog.ui \
         mainwindow.ui
 
 QMAKE_CXXFLAGS += -Wall -Wextra -Wpedantic
