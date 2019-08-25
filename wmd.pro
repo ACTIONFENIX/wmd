@@ -49,7 +49,7 @@ FORMS += \
 
 QMAKE_CXXFLAGS += -Wall -Wextra -Wpedantic
 
-LIBS += -lcurl
+LIBS += -lcurl -lstdc++fs
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

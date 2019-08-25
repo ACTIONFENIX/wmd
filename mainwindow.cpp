@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     options_dialog = new QDialog(this);
     options_ui.setupUi(options_dialog);
     setupConnections();
+    mf.set_location("Downloads");
 }
 
 MainWindow::~MainWindow()
@@ -47,7 +48,6 @@ void MainWindow::on_pushButton_clicked()
         {
             try
             {
-                site->set_location("Downloads");
                 auto ch_info = site->get_chapters_info();
                 for (auto i: ch_info)
                 {
@@ -138,7 +138,11 @@ void MainWindow::showOptions()
 {
     if (options_dialog->exec() == QDialog::Accepted)
     {
-        //update options
+        mf.set_location(options_ui.label->text().toStdString().c_str() + std::string("Download to\n").size());
+        if (site)
+        {
+            site->set_location(options_ui.label->text().toStdString().c_str() + std::string("Download to\n").size());
+        }
     }
 }
 

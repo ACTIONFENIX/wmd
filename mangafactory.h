@@ -18,6 +18,8 @@ public:
 
     ~MangaFactory();
 
+    void set_location(const std::string& location);
+
     MangaBase *from_url(const std::string &url);
 
 private:
@@ -39,6 +41,7 @@ private:
 
 private:
     CURL *m_easy_curl;
+    std::string m_location;
 };
 
 #endif // DOWNLOADER_H

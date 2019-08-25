@@ -23,6 +23,11 @@ MangaFactory::~MangaFactory()
     curl_global_cleanup();
 }
 
+void MangaFactory::set_location(const std::string& location)
+{
+    m_location = location;
+}
+
 MangaBase *MangaFactory::from_url(const std::string &url)
 {
     auto it = find_if(table.begin(), table.end(), [&url](auto p)
@@ -41,15 +46,21 @@ MangaBase *MangaFactory::from_url(const std::string &url)
 
 MangaBase *MangaFactory::create_readmanga(CURL *c, const std::string& url) const
 {
-    return new ReadManga(c, url);
+    MangaBase *ret = new ReadManga(c, url);
+    ret->set_location(m_location);
+    return ret;
 }
 
 MangaBase *MangaFactory::create_mintmanga(CURL *c, const std::string& url) const
 {
-    return new MintManga(c, url);
+    MangaBase *ret = new MintManga(c, url);
+    ret->set_location(m_location);
+    return ret;
 }
 
 MangaBase *MangaFactory::create_selfmanga(CURL *c, const std::string& url) const
 {
-    return new SelfManga(c, url);
+    MangaBase *ret = new SelfManga(c, url);
+    ret->set_location(m_location);
+    return ret;
 }
