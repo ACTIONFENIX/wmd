@@ -29,6 +29,8 @@ public:
 
     void set_url(const std::string &url);
 
+    void set_compression(bool is_compressed) override;
+
 private:
     MangaBase *create_readmanga(CURL *c, const std::string& url) const;
 
@@ -51,6 +53,7 @@ private:
     std::unique_ptr<MangaBase> m_manga_downloader;
     std::string m_location;
     std::string m_url;
+    bool m_compressed = false;
 };
 
 #endif // DOWNLOADER_H

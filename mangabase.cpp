@@ -1,7 +1,8 @@
 #include "mangabase.h"
 #include "mangaexception.h"
-
-#include <iostream>
+#include "errorhandler.h"
+#include <filesystem>
+#include <ZipFile.h>
 
 void MangaBase::examine_curl_code(CURLcode code)
 {
@@ -74,4 +75,48 @@ void MangaBase::download_image(const std::string &url, const std::string &filena
     m_file.write(m_image.data(), m_image.size());
     m_file.close();
     m_image.clear();
+}
+
+void MangaBase::compress(const std::string &path)
+{
+    std::vector<std::filesystem::path> remove_files;
+    std::string archive_name = std::filesystem::path(path) / (std::filesystem::path(path).filename().string() + ".zip");
+    {
+        //ensure archive file is present in the directory in order not to create it in directory loop
+        std::ofstream file(archive_name);
+        file.close();
+    }
+    std::filesystem::directory_iterator begin(path);
+    std::filesystem::directory_iterator end;
+    for (auto it = begin; it != end; ++it)
+    {
+        //do not compress itself
+        if (it->path().extension() == ".zip")
+        {
+            continue;
+        }
+
+        ZipArchive::Ptr archive = ZipFile::Open(archive_name);
+        ZipArchiveEntry::Ptr entry = archive->CreateEntry(it->path().filename());
+        if (entry == nullptr)
+        {
+            ErrorHandler err(std::string("Can not add ") + it->path().string() + " to " + archive_name + ". Maybe there is already file with such name?");
+            continue;
+        }
+
+        std::ifstream contentStream(it->path(), std::ios::binary);
+        entry->SetCompressionStream(contentStream);
+        ZipFile::SaveAndClose(archive, archive_name);
+        remove_files.push_back(it->path());
+    }
+    //removes everything from directory except archive
+    for (auto i: remove_files)
+    {
+        std::filesystem::remove(i);
+    }
+}
+
+void MangaBase::set_compression(bool is_compressed)
+{
+    m_compressed = is_compressed;
 }

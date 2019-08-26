@@ -27,6 +27,8 @@ public:
     virtual void download_chapters(size_t begin, size_t end) = 0;
 
     virtual void download_chapter(size_t i) = 0;
+
+    virtual void set_compression(bool is_compressed) = 0;
 };
 
 class MangaBase: public IMangaBase
@@ -45,6 +47,8 @@ public:
 
     void download_chapter(size_t i) override = 0;
 
+    void set_compression(bool is_compressed) override;
+
 protected:
     virtual void download_chapters_list() = 0;
 
@@ -61,6 +65,8 @@ protected:
 
     void download_image(const std::string& url, const std::string& filename);
 
+    void compress(const std::string& path);
+
 protected:
     CURL *m_easy_curl;
     std::string m_site;
@@ -71,6 +77,7 @@ protected:
     std::ofstream m_file;
     std::string m_location;
     std::vector<ChapterInfo> m_chapter_list;
+    bool m_compressed = false;
 };
 
 template <typename T>

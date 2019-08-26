@@ -71,11 +71,21 @@ void MangaFactory::set_url(const std::string &url)
     {
         m_manga_downloader = std::unique_ptr<MangaBase>(((*this).*(it->second))(m_easy_curl, url));
         m_manga_downloader->set_location(m_location);
+        m_manga_downloader->set_compression(m_compressed);
         m_url = url;
     }
     else
     {
         throw SiteNotSupported();
+    }
+}
+
+void MangaFactory::set_compression(bool is_compressed)
+{
+    m_compressed = is_compressed;
+    if (m_manga_downloader)
+    {
+        m_manga_downloader->set_compression(m_compressed);
     }
 }
 

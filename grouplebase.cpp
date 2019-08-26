@@ -129,4 +129,8 @@ void Grouple::download_chapter(size_t chapter_i)
     }
 
     m_chapter_page.clear();
+    if (m_compressed)
+    {
+        compress(chapter_directory);
+    }
 }

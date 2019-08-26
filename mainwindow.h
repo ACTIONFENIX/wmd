@@ -8,7 +8,6 @@
 #include <vector>
 #include <thread>
 #include "mangafactory.h"
-#include "mangabase.h"
 #include "ui_dialog.h"
 
 namespace Ui {

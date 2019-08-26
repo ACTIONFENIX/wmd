@@ -49,7 +49,9 @@ FORMS += \
 
 QMAKE_CXXFLAGS += -Wall -Wextra -Wpedantic
 
-LIBS += -lcurl -lstdc++fs
+INCLUDEPATH += ziplib/Source/ZipLib
+
+LIBS += -lcurl -lstdc++fs -Lziplib/Bin -lzip
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

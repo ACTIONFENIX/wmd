@@ -34,7 +34,7 @@ void MainWindow::setupConnections()
         auto dir = QFileDialog::getExistingDirectory(options_ui.widget, "Directory", "");
         if (!dir.isEmpty())
         {
-            options_ui.label->setText(QString("Download to\n") + dir);
+            options_ui.label->setText(QString("Download to:\n") + dir);
         }
     });
 }
@@ -119,7 +119,7 @@ void MainWindow::updateChaptersPalette(unsigned int i)
     palette.setColor(QPalette::ColorRole::Button, Qt::green);
     palette.setColor(QPalette::ColorRole::ButtonText, Qt::green);
     chapters_list[i]->setPalette(palette);
-    chapters_list[i]->setDown(false);
+    chapters_list[i]->setChecked(false);
 }
 
 void MainWindow::showError(const QString &str)
@@ -131,7 +131,8 @@ void MainWindow::showOptions()
 {
     if (options_dialog->exec() == QDialog::Accepted)
     {
-        mf.set_location(options_ui.label->text().toStdString().c_str() + std::string("Download to\n").size());
+        mf.set_location(options_ui.label->text().toStdString().c_str() + std::string("Download to:\n").size());
+        mf.set_compression(options_ui.checkBox->isChecked());
     }
 }
 
