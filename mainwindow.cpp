@@ -140,6 +140,6 @@ void MainWindow::showAbout()
 {
     QMessageBox msg_box;
     msg_box.setWindowTitle("About");
-    msg_box.setText("WMD - Wind Manga Downloader v0.1\nSource: https://github.com/ACTIONFENIX/wmd");
+    msg_box.setText("WMD - Wind Manga Downloader v0.11\nSource: https://github.com/ACTIONFENIX/wmd");
     msg_box.exec();
 }
