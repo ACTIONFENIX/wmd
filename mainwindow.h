@@ -70,7 +70,7 @@ private:
     Mode mode = Mode::show_chapters;
     MangaFactory mf;
     std::thread th{[](){}};
-    bool is_downloaded = false; //to use
+    bool is_downloading = false;
 };
 
 #endif // MAINWINDOW_H

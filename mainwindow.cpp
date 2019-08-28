@@ -85,11 +85,23 @@ void MainWindow::add_chapter(const std::string &chapter_name)
 
 void MainWindow::download_chapters()
 {
+    if (is_downloading)
+    {
+        QMessageBox msg_box;
+        msg_box.setText("There is already a downloading. Abort it?");
+        msg_box.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        msg_box.setDefaultButton(QMessageBox::Ok);
+        if (msg_box.exec() == QMessageBox::Cancel)
+        {
+            return;
+        }
+    }
+    is_downloading = true;
     try
     {
         for (size_t i = 0; i < chapters_list.size(); ++i)
         {
-            if (chapters_list[i]->isChecked())
+            if (chapters_list[i]->isChecked() && chapters_list[i]->palette().color(QPalette::ColorRole::WindowText) != Qt::green)
             {
                 mf.download_chapter(i);
                 emit signalUpdateChaptersPalette(i);
@@ -100,7 +112,7 @@ void MainWindow::download_chapters()
     {
         emit signalErrorOccured(QString(e.what()));
     }
-    is_downloaded = true;
+    is_downloading = false;
 }
 
 void MainWindow::on_lineEdit_textChanged(const QString &)
@@ -108,7 +120,6 @@ void MainWindow::on_lineEdit_textChanged(const QString &)
     mode = Mode::show_chapters;
     ui->pushButton->setText("Find");
     clear_chapters();
-    is_downloaded = false;
 }
 
 void MainWindow::updateChaptersPalette(unsigned int i)
@@ -119,7 +130,6 @@ void MainWindow::updateChaptersPalette(unsigned int i)
     palette.setColor(QPalette::ColorRole::Button, Qt::green);
     palette.setColor(QPalette::ColorRole::ButtonText, Qt::green);
     chapters_list[i]->setPalette(palette);
-    chapters_list[i]->setChecked(false);
 }
 
 void MainWindow::showError(const QString &str)
