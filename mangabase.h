@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <atomic>
 
 //fullname - "volumes_number - chapters_number chapters_title"
 struct ChapterInfo
@@ -24,11 +25,15 @@ public:
 
     virtual const std::vector<ChapterInfo>& get_chapters_info() = 0;
 
-    virtual void download_chapters(size_t begin, size_t end) = 0;
-
     virtual void download_chapter(size_t i) = 0;
 
-    virtual void set_compression(bool is_compressed) = 0;
+    virtual void set_compressed(bool compressed) = 0;
+
+    virtual bool is_compressed() const = 0;
+
+    virtual void stop() = 0;
+
+    virtual bool is_stopped() const = 0;
 };
 
 class MangaBase: public IMangaBase
@@ -43,11 +48,15 @@ public:
 
     const std::vector<ChapterInfo>& get_chapters_info() override;
 
-    void download_chapters(size_t begin, size_t end) override;
-
     void download_chapter(size_t i) override = 0;
 
-    void set_compression(bool is_compressed) override;
+    void set_compressed(bool compressed) override;
+
+    bool is_compressed() const override;
+
+    void stop() override;
+
+    bool is_stopped() const override;
 
 protected:
     virtual void download_chapters_list() = 0;
@@ -78,6 +87,7 @@ protected:
     std::string m_location;
     std::vector<ChapterInfo> m_chapter_list;
     bool m_compressed = false;
+    std::atomic<bool> m_stop = false;
 };
 
 template <typename T>

@@ -6,7 +6,7 @@
 #include <QDialog>
 #include <memory>
 #include <vector>
-#include <thread>
+#include <future>
 #include "mangafactory.h"
 #include "ui_dialog.h"
 
@@ -47,6 +47,8 @@ private slots:
 private:
     void setupConnections();
 
+    void hide_chapters();
+
     //remove all checkboxes
     void clear_chapters();
 
@@ -69,8 +71,7 @@ private:
     std::vector<QCheckBox*> chapters_list;
     Mode mode = Mode::show_chapters;
     MangaFactory mf;
-    std::thread th{[](){}};
-    bool is_downloading = false;
+    std::future<void> m_downloading;
 };
 
 #endif // MAINWINDOW_H

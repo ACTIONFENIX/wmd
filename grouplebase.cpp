@@ -92,12 +92,21 @@ std::string Grouple::get_first_chapter_url()
     return first_chapter_url;
 }
 
+//TODO: split function
 void Grouple::download_chapter(size_t chapter_i)
 {
+    m_stop = false;
     download_chapters_list();
     std::string chapter_directory = m_location + m_chapter_list[chapter_i].url.substr(m_site.size() + 1);
-    //add try / catch ?
-    std::filesystem::create_directories(std::filesystem::path(chapter_directory));
+    try
+    {
+        std::filesystem::create_directories(std::filesystem::path(chapter_directory));
+    }
+    catch (const std::exception& e)
+    {
+        ErrorHandler err(e.what());
+        return;
+    }
     download_chapter_page(m_chapter_list[chapter_i].url + "?mtr=1");
     if (m_chapter_page.find("Купите мангу") != std::string::npos)
     {
@@ -114,7 +123,7 @@ void Grouple::download_chapter(size_t chapter_i)
     auto end = m_chapter_page.find(images_end_section, i);
 
     i = m_chapter_page.find("http:", i);
-    while (i < end)
+    while (i < end && !m_stop)
     {
         image_server = m_chapter_page.substr(i, m_chapter_page.find('\'', i) - i);
         i = m_chapter_page.find('"', i) + 1;
@@ -129,7 +138,7 @@ void Grouple::download_chapter(size_t chapter_i)
     }
 
     m_chapter_page.clear();
-    if (m_compressed)
+    if (m_compressed && !m_stop)
     {
         compress(chapter_directory);
     }

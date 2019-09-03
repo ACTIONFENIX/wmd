@@ -1,4 +1,4 @@
-Wind Manga Downloader (WMD) v0.11
+Wind Manga Downloader (WMD) v0.12
 
 Cross-platform, multi-site, GUI manga downloader written in C++.
 

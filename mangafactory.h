@@ -19,17 +19,21 @@ public:
 
     ~MangaFactory();
 
-    void set_location(const std::string& location);
+    void set_location(const std::string& location) override;
 
-    const std::vector<ChapterInfo>& get_chapters_info();
+    const std::vector<ChapterInfo>& get_chapters_info() override;
 
-    void download_chapters(size_t begin, size_t end);
-
-    void download_chapter(size_t i);
+    void download_chapter(size_t i) override;
 
     void set_url(const std::string &url);
 
-    void set_compression(bool is_compressed) override;
+    void set_compressed(bool compressed) override;
+
+    bool is_compressed() const override;
+
+    void stop() override;
+
+    bool is_stopped() const override;
 
 private:
     MangaBase *create_readmanga(CURL *c, const std::string& url) const;

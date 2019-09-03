@@ -51,16 +51,9 @@ void MangaBase::set_location(const std::string &location)
 
 const std::vector<ChapterInfo> &MangaBase::get_chapters_info()
 {
+    m_stop = false;
     download_chapters_list();
     return m_chapter_list;
-}
-
-void MangaBase::download_chapters(size_t begin_chapter, size_t end_chapter)
-{
-    for (auto chapter = begin_chapter; chapter <= end_chapter; ++chapter)
-    {
-        download_chapter(chapter);
-    }
 }
 
 void MangaBase::download_image(const std::string &url, const std::string &filename)
@@ -70,8 +63,11 @@ void MangaBase::download_image(const std::string &url, const std::string &filena
     curl_easy_setopt(m_easy_curl, CURLOPT_WRITEDATA, &m_image);
     examine_curl_code(curl_easy_perform(m_easy_curl));
 
-    //TODO: add error management
     m_file.open(m_location + filename);
+    if (!m_file)
+    {
+        throw PermissionDenied(m_location + filename);
+    }
     m_file.write(m_image.data(), m_image.size());
     m_file.close();
     m_image.clear();
@@ -88,7 +84,7 @@ void MangaBase::compress(const std::string &path)
     }
     std::filesystem::directory_iterator begin(path);
     std::filesystem::directory_iterator end;
-    for (auto it = begin; it != end; ++it)
+    for (auto it = begin; it != end && !m_stop; ++it)
     {
         //do not compress itself
         if (it->path().extension() == ".zip")
@@ -109,14 +105,36 @@ void MangaBase::compress(const std::string &path)
         ZipFile::SaveAndClose(archive, archive_name);
         remove_files.push_back(it->path());
     }
+    if (m_stop)
+    {
+        return;
+    }
     //removes everything from directory except archive
     for (auto i: remove_files)
     {
         std::filesystem::remove(i);
     }
+    //move archive to the parent directory and delete previous
+    std::filesystem::rename(archive_name, std::filesystem::path(archive_name).parent_path().parent_path() / std::filesystem::path(archive_name).filename());
+    std::filesystem::remove(std::filesystem::path(archive_name).parent_path());
 }
 
-void MangaBase::set_compression(bool is_compressed)
+void MangaBase::set_compressed(bool compressed)
 {
-    m_compressed = is_compressed;
+    m_compressed = compressed;
+}
+
+bool MangaBase::is_compressed() const
+{
+    return m_compressed;
+}
+
+void MangaBase::stop()
+{
+    m_stop = true;
+}
+
+bool MangaBase::is_stopped() const
+{
+    return m_stop;
 }

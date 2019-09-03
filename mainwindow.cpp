@@ -18,7 +18,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    th.detach();
     delete ui;
 }
 
@@ -41,13 +40,27 @@ void MainWindow::setupConnections()
 
 void MainWindow::on_pushButton_clicked()
 {
+    if (m_downloading.valid() && m_downloading.wait_for(std::chrono::milliseconds(0)) == std::future_status::timeout)
+    {
+        QMessageBox msg_box;
+        msg_box.setText("There is already a downloading. Abort it?");
+        msg_box.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        msg_box.setDefaultButton(QMessageBox::Ok);
+        if (msg_box.exec() == QMessageBox::Cancel)
+        {
+            return;
+        }
+        mf.stop();
+        m_downloading.get();
+        clear_chapters();
+    }
     if (mode == Mode::show_chapters)
     {
         try
         {
             mf.set_url(ui->lineEdit->text().toStdString());
             auto ch_info = mf.get_chapters_info();
-            for (auto i: ch_info)
+            for (auto& i: ch_info)
             {
                 add_chapter(i.fullname);
             }
@@ -62,8 +75,15 @@ void MainWindow::on_pushButton_clicked()
     }
     else
     {
-        th.detach();
-        th = std::thread(&MainWindow::download_chapters, this);
+        m_downloading = std::async(std::launch::async, &MainWindow::download_chapters, this);
+    }
+}
+
+void MainWindow::hide_chapters()
+{
+    for (auto i: chapters_list)
+    {
+        i->hide();
     }
 }
 
@@ -85,26 +105,17 @@ void MainWindow::add_chapter(const std::string &chapter_name)
 
 void MainWindow::download_chapters()
 {
-    if (is_downloading)
-    {
-        QMessageBox msg_box;
-        msg_box.setText("There is already a downloading. Abort it?");
-        msg_box.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        msg_box.setDefaultButton(QMessageBox::Ok);
-        if (msg_box.exec() == QMessageBox::Cancel)
-        {
-            return;
-        }
-    }
-    is_downloading = true;
     try
     {
         for (size_t i = 0; i < chapters_list.size(); ++i)
         {
-            if (chapters_list[i]->isChecked() && chapters_list[i]->palette().color(QPalette::ColorRole::WindowText) != Qt::green)
+            if (!mf.is_stopped() && chapters_list[i]->isChecked() && chapters_list[i]->palette().color(QPalette::ColorRole::WindowText) != Qt::green)
             {
                 mf.download_chapter(i);
-                emit signalUpdateChaptersPalette(i);
+                if (!mf.is_stopped())
+                {
+                    emit signalUpdateChaptersPalette(i);
+                }
             }
         }
     }
@@ -112,24 +123,27 @@ void MainWindow::download_chapters()
     {
         emit signalErrorOccured(QString(e.what()));
     }
-    is_downloading = false;
 }
 
 void MainWindow::on_lineEdit_textChanged(const QString &)
 {
     mode = Mode::show_chapters;
     ui->pushButton->setText("Find");
-    clear_chapters();
+    //clear_chapters();
+    hide_chapters();
 }
 
 void MainWindow::updateChaptersPalette(unsigned int i)
 {
-    auto palette = chapters_list[i]->palette();
-    palette.setColor(QPalette::ColorRole::Window, Qt::green);
-    palette.setColor(QPalette::ColorRole::WindowText, Qt::green);
-    palette.setColor(QPalette::ColorRole::Button, Qt::green);
-    palette.setColor(QPalette::ColorRole::ButtonText, Qt::green);
-    chapters_list[i]->setPalette(palette);
+    if (i < chapters_list.size())
+    {
+        auto palette = chapters_list[i]->palette();
+        palette.setColor(QPalette::ColorRole::Window, Qt::green);
+        palette.setColor(QPalette::ColorRole::WindowText, Qt::green);
+        palette.setColor(QPalette::ColorRole::Button, Qt::green);
+        palette.setColor(QPalette::ColorRole::ButtonText, Qt::green);
+        chapters_list[i]->setPalette(palette);
+    }
 }
 
 void MainWindow::showError(const QString &str)
@@ -142,7 +156,7 @@ void MainWindow::showOptions()
     if (options_dialog->exec() == QDialog::Accepted)
     {
         mf.set_location(options_ui.label->text().toStdString().c_str() + std::string("Download to:\n").size());
-        mf.set_compression(options_ui.checkBox->isChecked());
+        mf.set_compressed(options_ui.checkBox->isChecked());
     }
 }
 
@@ -150,6 +164,6 @@ void MainWindow::showAbout()
 {
     QMessageBox msg_box;
     msg_box.setWindowTitle("About");
-    msg_box.setText("WMD - Wind Manga Downloader v0.11\nSource: https://github.com/ACTIONFENIX/wmd");
+    msg_box.setText("WMD - Wind Manga Downloader v0.12\nSource: https://github.com/ACTIONFENIX/wmd");
     msg_box.exec();
 }

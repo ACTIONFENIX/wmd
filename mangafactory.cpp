@@ -45,14 +45,6 @@ const std::vector<ChapterInfo>& MangaFactory::get_chapters_info()
     }
 }
 
-void MangaFactory::download_chapters(size_t begin, size_t end)
-{
-    if (m_manga_downloader)
-    {
-        m_manga_downloader->download_chapters(begin, end);
-    }
-}
-
 void MangaFactory::download_chapter(size_t i)
 {
     if (m_manga_downloader)
@@ -71,7 +63,7 @@ void MangaFactory::set_url(const std::string &url)
     {
         m_manga_downloader = std::unique_ptr<MangaBase>(((*this).*(it->second))(m_easy_curl, url));
         m_manga_downloader->set_location(m_location);
-        m_manga_downloader->set_compression(m_compressed);
+        m_manga_downloader->set_compressed(m_compressed);
         m_url = url;
     }
     else
@@ -80,13 +72,31 @@ void MangaFactory::set_url(const std::string &url)
     }
 }
 
-void MangaFactory::set_compression(bool is_compressed)
+void MangaFactory::set_compressed(bool compressed)
 {
-    m_compressed = is_compressed;
+    m_compressed = compressed;
     if (m_manga_downloader)
     {
-        m_manga_downloader->set_compression(m_compressed);
+        m_manga_downloader->set_compressed(m_compressed);
     }
+}
+
+bool MangaFactory::is_compressed() const
+{
+    return m_compressed;
+}
+
+void MangaFactory::stop()
+{
+    if (m_manga_downloader)
+    {
+        m_manga_downloader->stop();
+    }
+}
+
+bool MangaFactory::is_stopped() const
+{
+    return m_manga_downloader && m_manga_downloader->is_stopped();
 }
 
 MangaBase *MangaFactory::create_readmanga(CURL *c, const std::string& url) const
